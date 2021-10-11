@@ -1,6 +1,14 @@
 <template>
     <div>
 
+        <div class="search-box">
+            <input type="text" v-model="term" v-on:keyup.enter="searchGiphy()"/>
+            <b-button class="float-end" variant="primary" @click="searchGiphy">Search</b-button>
+            <b-button class="float-end" variant="primary" @click="trendingGiphy">Trending</b-button>
+            <b-button class="float-end" variant="primary" @click="randomGipghy">Random</b-button>
+
+        </div>
+
         <b-card-group columns>
             <b-card
                 v-for="gif in gifs"
@@ -25,19 +33,49 @@
         name: 'GiphyViewer',
         data() {
             return{
-                gifs: [  ]
+                gifs: [  ],
+                term: ""
             };
         },
         mounted() {
-            axios.get(`${GIPHY_URL}/trending?api_key=${API_KEY}`)
+            this.trendingGiphy();
+        },
+        methods: {
+
+            trendingGiphy() {
+                axios.get(`${GIPHY_URL}/trending?api_key=${API_KEY}`)
                  .then((response) => {
                      console.log(response.data.data)
                      this.gifs = response.data.data
                  })
                  .catch(error => console.log(error))
-        },
-        methods: {
+            },
 
+            randomGipghy() {
+                axios.get(`${GIPHY_URL}/random?api_key=${API_KEY}`)
+                 .then((response) => {
+                     console.log(response.data.data)
+                     this.gifs = [response.data.data]
+                 })
+                 .catch(error => console.log(error))
+            },
+
+            searchGiphy() {
+
+                if(!this.term) {
+                    alert("please enter a search term");
+                    return
+
+                }
+                axios.get(`${GIPHY_URL}/search?api_key=${API_KEY}&q=${this.term}&limit=20`)
+                    .then((response) => {
+                        console.log(response.data.data)
+                        this.gifs = response.data.data
+                    })
+                    .catch(error => console.log(error))
+
+                    this.term = ""
+            }
         }
     }
 </script>
@@ -69,5 +107,9 @@
         -moz-column-count: 5;
         column-count: 5;
     }
+}
+
+.search-box {
+
 }
 </style>
